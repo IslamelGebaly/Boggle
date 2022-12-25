@@ -1,5 +1,7 @@
-import edu.princeton.cs.algs4.Bag;
 import edu.princeton.cs.algs4.TrieSET;
+
+import java.util.ArrayList;
+import java.util.Stack;
 
 public class BoggleSolver {
     private final TrieSET set;
@@ -17,7 +19,13 @@ public class BoggleSolver {
 
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
     public Iterable<String> getAllValidWords(BoggleBoard board) {
-        return new Bag<String>();
+        ArrayList<String> possibleWords = new ArrayList<>();
+
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                possibleWords.addAll(findAll(board, i, j))
+            }
+        }
     }
 
     // Returns the score of the given word if it is in the dictionary, zero otherwise.
@@ -46,4 +54,15 @@ public class BoggleSolver {
         }
         return 0;
     }
+
+    public ArrayList<String> findAll(BoggleBoard board, int sourceX, int sourceY) {
+        Stack<String> stack = new Stack<>();
+        stack.push("" + board.getLetter(sourceX, sourceY));
+
+        String
+        while (!stack.isEmpty()) {
+
+        }
+    }
+
 }
