@@ -1,10 +1,36 @@
+import edu.princeton.cs.algs4.Bag;
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.TrieSET;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Stack;
 
 public class BoggleSolver {
     private final TrieSET set;
+
+    private class Dice {
+        private int x, y;
+        private String value;
+
+        Dice(int x, int y, String value) {
+            this.x = x;
+            this.y = y;
+            this.value = value;
+        }
+
+        int X() {
+            return this.x;
+        }
+
+        int Y() {
+            return this.y;
+        }
+
+        String value() {
+            return this.value;
+        }
+    }
 
     // Initializes the data structure using the given array of strings as the dictionary.
     // (You can assume each word in the dictionary contains only the uppercase letters A through Z.)
@@ -23,9 +49,11 @@ public class BoggleSolver {
 
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                possibleWords.addAll(findAll(board, i, j))
+                possibleWords.addAll(findAll(board, i, j));
             }
         }
+
+        BoggleBoard board;
     }
 
     // Returns the score of the given word if it is in the dictionary, zero otherwise.
@@ -55,14 +83,55 @@ public class BoggleSolver {
         return 0;
     }
 
-    public ArrayList<String> findAll(BoggleBoard board, int sourceX, int sourceY) {
-        Stack<String> stack = new Stack<>();
-        stack.push("" + board.getLetter(sourceX, sourceY));
+    private Iterable<Dice> adjacent(BoggleBoard board, Dice x) {
+        Bag<Dice> adjacentDice = new Bag<>();
 
-        String
-        while (!stack.isEmpty()) {
+        for (int i = x.X() - 1; i < x.X() + 2; i++) {
+            if (i < 0 || i >= 4)
+                continue;
+            for (int j = x.Y() - 1; j < x.Y() + 2; j++) {
+                if (j < 0 || j >= 4)
+                    continue;
 
+                adjacentDice.add(new Dice(i, j, x.value() + board.getLetter(i, j)));
+            }
         }
+
+        return adjacentDice;
+    }
+
+    private ArrayList<String> findAll(BoggleBoard board, int sourceX, int sourceY) {
+        ArrayList<String> strings = new ArrayList<>();
+        Stack<Dice> stack = new Stack<>();
+        boolean[][] marked = new boolean[4][4];
+
+        for (int i = 0; i < 4; i++)
+            Arrays.fill(marked[i], false);
+
+        stack.push(new Dice(sourceX, sourceY, String.valueOf(board.getLetter(sourceX, sourceY))));
+        Dice item;
+
+        while (!stack.isEmpty()) {
+            item = stack.pop();
+
+            if (item.value().length() >= 3)
+                strings.add(item.value());
+
+            marked[item.X()][item.Y()] = true;
+
+            for (Dice adj : adjacent(board, item)) {
+                if (!marked[adj.X()][adj.Y()])
+                    stack.push(adj);
+            }
+        }
+
+        return strings;
+    }
+
+    public static void main(String[] args) {
+        BoggleBoard board = new BoggleBoard("board-points4.txt");
+        In in = new In("dictionary-algs4.txt");
+        BoggleSolver boggleSolver = new BoggleSolver(in.readAllLines());
     }
 
 }
