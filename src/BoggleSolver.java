@@ -1,13 +1,12 @@
 import edu.princeton.cs.algs4.Bag;
-import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.TrieSET;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Stack;
+import java.util.TreeSet;
 
 public class BoggleSolver {
-    private final TrieSET set;
+    private final TreeSet<String> set;
 
     private class Dice {
         private int x, y;
@@ -37,7 +36,7 @@ public class BoggleSolver {
     public BoggleSolver(String[] dictionary) {
         if (dictionary == null)
             throw new IllegalArgumentException();
-        set = new TrieSET();
+        set = new TreeSet<>();
         for (String string : dictionary) {
             set.add(string);
         }
@@ -46,6 +45,7 @@ public class BoggleSolver {
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
     public Iterable<String> getAllValidWords(BoggleBoard board) {
         ArrayList<String> possibleWords = new ArrayList<>();
+        ArrayList<String> validWords = new ArrayList<>();
 
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -53,7 +53,13 @@ public class BoggleSolver {
             }
         }
 
-        BoggleBoard board;
+
+        for (String word : possibleWords) {
+            if (set.contains(word))
+                validWords.add(word);
+        }
+
+        return validWords;
     }
 
     // Returns the score of the given word if it is in the dictionary, zero otherwise.
@@ -129,9 +135,7 @@ public class BoggleSolver {
     }
 
     public static void main(String[] args) {
-        BoggleBoard board = new BoggleBoard("board-points4.txt");
-        In in = new In("dictionary-algs4.txt");
-        BoggleSolver boggleSolver = new BoggleSolver(in.readAllLines());
+
     }
 
 }
