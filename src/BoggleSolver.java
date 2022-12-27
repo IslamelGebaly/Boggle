@@ -1,8 +1,9 @@
 import edu.princeton.cs.algs4.Bag;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdOut;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Stack;
 import java.util.TreeSet;
 
 public class BoggleSolver {
@@ -18,17 +19,6 @@ public class BoggleSolver {
             this.value = value;
         }
 
-        int X() {
-            return this.x;
-        }
-
-        int Y() {
-            return this.y;
-        }
-
-        String value() {
-            return this.value;
-        }
     }
 
     // Initializes the data structure using the given array of strings as the dictionary.
@@ -55,7 +45,7 @@ public class BoggleSolver {
 
 
         for (String word : possibleWords) {
-            if (set.contains(word))
+            if (set.contains(word) && !validWords.contains(word))
                 validWords.add(word);
         }
 
@@ -92,14 +82,14 @@ public class BoggleSolver {
     private Iterable<Dice> adjacent(BoggleBoard board, Dice x) {
         Bag<Dice> adjacentDice = new Bag<>();
 
-        for (int i = x.X() - 1; i < x.X() + 2; i++) {
+        for (int i = x.x - 1; i < x.x + 2; i++) {
             if (i < 0 || i >= 4)
                 continue;
-            for (int j = x.Y() - 1; j < x.Y() + 2; j++) {
+            for (int j = x.y - 1; j < x.y + 2; j++) {
                 if (j < 0 || j >= 4)
                     continue;
 
-                adjacentDice.add(new Dice(i, j, x.value() + board.getLetter(i, j)));
+                adjacentDice.add(new Dice(i, j, x.value + board.getLetter(i, j)));
             }
         }
 
@@ -108,34 +98,62 @@ public class BoggleSolver {
 
     private ArrayList<String> findAll(BoggleBoard board, int sourceX, int sourceY) {
         ArrayList<String> strings = new ArrayList<>();
-        Stack<Dice> stack = new Stack<>();
         boolean[][] marked = new boolean[4][4];
 
         for (int i = 0; i < 4; i++)
             Arrays.fill(marked[i], false);
 
-        stack.push(new Dice(sourceX, sourceY, String.valueOf(board.getLetter(sourceX, sourceY))));
-        Dice item;
+        Dice item = new Dice(sourceX, sourceY, "" + board.getLetter(sourceX, sourceY));
+        marked[sourceX][sourceY] = true;
 
-        while (!stack.isEmpty()) {
-            item = stack.pop();
+        if (item.value.length() >= 3)
+            strings.add(item.value);
 
-            if (item.value().length() >= 3)
-                strings.add(item.value());
+        marked[item.x][item.y] = true;
 
-            marked[item.X()][item.Y()] = true;
-
-            for (Dice adj : adjacent(board, item)) {
-                if (!marked[adj.X()][adj.Y()])
-                    stack.push(adj);
+        for (int i = item.x - 1; i <= item.x + 1 && i < 4; i++) {
+            for (int j = item.y - 1; j <= item.y + 1 && j < 4; j++) {
+                if (i >= 0 && j >= 0 && !marked[i][j])
+                    strings.addAll(findAllUtil(board, marked, new Dice(i, j,
+                            item.value + board.getLetter(i, j))));
             }
         }
 
+        marked[item.x][item.y] = false;
+        return strings;
+    }
+
+    ArrayList<String> findAllUtil(BoggleBoard board, boolean[][] marked, Dice item) {
+        marked[item.x][item.y] = true;
+
+        ArrayList<String> strings = new ArrayList<>();
+        if (item.value.length() >= 3)
+            strings.add(item.value);
+
+        for (int i = item.x - 1; i <= item.x + 1 && i < 4; i++) {
+            for (int j = item.y - 1; j <= item.y + 1 && j < 4; j++) {
+                if (i >= 0 && j >= 0 && !marked[i][j])
+                    strings.addAll(findAllUtil(board, marked, new Dice(i, j,
+                            item.value + board.getLetter(i, j))));
+            }
+        }
+
+        marked[item.x][item.y] = false;
         return strings;
     }
 
     public static void main(String[] args) {
+        In in = new In(args[0]);
+        String[] dictionary = in.readAllStrings();
+        BoggleSolver solver = new BoggleSolver(dictionary);
+        BoggleBoard board = new BoggleBoard(args[1]);
+        int score = 0;
 
+        for (String word : solver.getAllValidWords(board)) {
+            StdOut.println(word);
+            score += solver.scoreOf(word);
+        }
+        StdOut.println("Score = " + score);
     }
 
 }
