@@ -1,13 +1,12 @@
-import edu.princeton.cs.algs4.Bag;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.TrieSET;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.TreeSet;
 
 public class BoggleSolver {
-    private final TreeSet<String> set;
+    private final TrieSET set;
 
     private class Dice {
         private int x, y;
@@ -26,7 +25,7 @@ public class BoggleSolver {
     public BoggleSolver(String[] dictionary) {
         if (dictionary == null)
             throw new IllegalArgumentException();
-        set = new TreeSet<>();
+        set = new TrieSET();
         for (String string : dictionary) {
             set.add(string);
         }
@@ -34,20 +33,22 @@ public class BoggleSolver {
 
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
     public Iterable<String> getAllValidWords(BoggleBoard board) {
-        ArrayList<String> possibleWords = new ArrayList<>();
         ArrayList<String> validWords = new ArrayList<>();
 
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                possibleWords.addAll(findAll(board, i, j));
+                for (String s : findAll(board, i, j))
+                    if (!validWords.contains(s))
+                        validWords.add(s);
             }
         }
+        /*
+        for (int i = 0; i < 4 * 4; i++) {
+            for (String word : possibleWords.get(i)) {
+                if (set.keysWithPrefix(word) == null)
 
-
-        for (String word : possibleWords) {
-            if (set.contains(word) && !validWords.contains(word))
-                validWords.add(word);
-        }
+            }
+        }*/
 
         return validWords;
     }
@@ -79,26 +80,10 @@ public class BoggleSolver {
         return 0;
     }
 
-    private Iterable<Dice> adjacent(BoggleBoard board, Dice x) {
-        Bag<Dice> adjacentDice = new Bag<>();
-
-        for (int i = x.x - 1; i < x.x + 2; i++) {
-            if (i < 0 || i >= 4)
-                continue;
-            for (int j = x.y - 1; j < x.y + 2; j++) {
-                if (j < 0 || j >= 4)
-                    continue;
-
-                adjacentDice.add(new Dice(i, j, x.value + board.getLetter(i, j)));
-            }
-        }
-
-        return adjacentDice;
-    }
-
     private ArrayList<String> findAll(BoggleBoard board, int sourceX, int sourceY) {
         ArrayList<String> strings = new ArrayList<>();
         boolean[][] marked = new boolean[4][4];
+        boolean validPath = true;
 
         for (int i = 0; i < 4; i++)
             Arrays.fill(marked[i], false);
@@ -106,16 +91,24 @@ public class BoggleSolver {
         Dice item = new Dice(sourceX, sourceY, "" + board.getLetter(sourceX, sourceY));
         marked[sourceX][sourceY] = true;
 
-        if (item.value.length() >= 3)
-            strings.add(item.value);
 
+        if (set.keysWithPrefix(item.value) == null)
+            validPath = false;
+        else {
+            for (String s : set.keysThatMatch(item.value)) {
+                if (s.length() >= 3)
+                    strings.add(s);
+            }
+        }
         marked[item.x][item.y] = true;
 
-        for (int i = item.x - 1; i <= item.x + 1 && i < 4; i++) {
-            for (int j = item.y - 1; j <= item.y + 1 && j < 4; j++) {
-                if (i >= 0 && j >= 0 && !marked[i][j])
-                    strings.addAll(findAllUtil(board, marked, new Dice(i, j,
-                            item.value + board.getLetter(i, j))));
+        if (validPath) {
+            for (int i = item.x - 1; i <= item.x + 1 && i < 4; i++) {
+                for (int j = item.y - 1; j <= item.y + 1 && j < 4; j++) {
+                    if (i >= 0 && j >= 0 && !marked[i][j])
+                        strings.addAll(findAllUtil(board, marked, new Dice(i, j,
+                                item.value + board.getLetter(i, j))));
+                }
             }
         }
 
@@ -125,16 +118,26 @@ public class BoggleSolver {
 
     ArrayList<String> findAllUtil(BoggleBoard board, boolean[][] marked, Dice item) {
         marked[item.x][item.y] = true;
+        boolean validPath = true;
 
         ArrayList<String> strings = new ArrayList<>();
-        if (item.value.length() >= 3)
-            strings.add(item.value);
 
-        for (int i = item.x - 1; i <= item.x + 1 && i < 4; i++) {
-            for (int j = item.y - 1; j <= item.y + 1 && j < 4; j++) {
-                if (i >= 0 && j >= 0 && !marked[i][j])
-                    strings.addAll(findAllUtil(board, marked, new Dice(i, j,
-                            item.value + board.getLetter(i, j))));
+        if (set.keysWithPrefix(item.value) == null)
+            validPath = false;
+        else {
+            for (String s : set.keysThatMatch(item.value)) {
+                if (s.length() >= 3)
+                    strings.add(s);
+            }
+        }
+
+        if (validPath) {
+            for (int i = item.x - 1; i <= item.x + 1 && i < 4; i++) {
+                for (int j = item.y - 1; j <= item.y + 1 && j < 4; j++) {
+                    if (i >= 0 && j >= 0 && !marked[i][j])
+                        strings.addAll(findAllUtil(board, marked, new Dice(i, j,
+                                item.value + board.getLetter(i, j))));
+                }
             }
         }
 
