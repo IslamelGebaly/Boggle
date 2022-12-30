@@ -36,20 +36,13 @@ public class BoggleSolver {
     public Iterable<String> getAllValidWords(BoggleBoard board) {
         ArrayList<String> validWords = new ArrayList<>();
 
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
+        for (int i = 0; i < board.rows(); i++) {
+            for (int j = 0; j < board.cols(); j++) {
                 for (String s : findAll(board, i, j))
                     if (!validWords.contains(s))
                         validWords.add(s);
             }
         }
-        /*
-        for (int i = 0; i < 4 * 4; i++) {
-            for (String word : possibleWords.get(i)) {
-                if (set.keysWithPrefix(word) == null)
-
-            }
-        }*/
 
         return validWords;
     }
@@ -118,8 +111,8 @@ public class BoggleSolver {
 
         if (validPath) {
             node = set.nextNode(node, item.value.charAt(item.value.length() - 1));
-            for (int i = item.x - 1; i <= item.x + 1 && i < 4; i++) {
-                for (int j = item.y - 1; j <= item.y + 1 && j < 4; j++) {
+            for (int i = item.x - 1; i <= item.x + 1 && i < board.rows(); i++) {
+                for (int j = item.y - 1; j <= item.y + 1 && j < board.cols(); j++) {
                     if (i >= 0 && j >= 0 && !marked[i][j]) {
                         nextLetter = board.getLetter(i, j) == 'Q' ? "QU" : ""
                                 + board.getLetter(i, j);
@@ -138,8 +131,6 @@ public class BoggleSolver {
         marked[item.x][item.y] = true;
         boolean validPath = true;
         boolean isQ = false;
-
-        StdOut.println(item.value);
 
         TrieSET.Node node = x;
 
@@ -164,8 +155,8 @@ public class BoggleSolver {
         String nextLetter;
         if (validPath) {
             node = set.nextNode(node, item.value.charAt(item.value.length() - 1));
-            for (int i = item.x - 1; i <= item.x + 1 && i < 4; i++) {
-                for (int j = item.y - 1; j <= item.y + 1 && j < 4; j++) {
+            for (int i = item.x - 1; i <= item.x + 1 && i < board.rows(); i++) {
+                for (int j = item.y - 1; j <= item.y + 1 && j < board.cols(); j++) {
                     if (i >= 0 && j >= 0 && !marked[i][j]) {
                         nextLetter = board.getLetter(i, j) == 'Q' ? "QU" : ""
                                 + board.getLetter(i, j);
