@@ -127,7 +127,7 @@ public class BoggleSolver {
         return strings;
     }
 
-    ArrayList<String> findAllUtil(BoggleBoard board, TrieSET.Node x, boolean[][] marked, Dice item) {
+    private ArrayList<String> findAllUtil(BoggleBoard board, TrieSET.Node x, boolean[][] marked, Dice item) {
         marked[item.x][item.y] = true;
         boolean validPath = true;
         boolean isQ = false;
