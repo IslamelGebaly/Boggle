@@ -85,33 +85,46 @@ public class BoggleSolver {
         ArrayList<String> strings = new ArrayList<>();
         boolean[][] marked = new boolean[4][4];
         boolean validPath = true;
+        boolean isQ = false;
+        TrieSET.Node node = set.getRoot();
 
+        if (board.getLetter(sourceX, sourceY) == 'Q')
+            isQ = true;
+
+        String nextLetter = isQ ? "QU" : ""
+                + board.getLetter(sourceX, sourceY);
 
         for (int i = 0; i < 4; i++)
             Arrays.fill(marked[i], false);
 
-        Dice item = new Dice(sourceX, sourceY, "" + board.getLetter(sourceX, sourceY));
+        Dice item = new Dice(sourceX, sourceY, nextLetter);
         marked[sourceX][sourceY] = true;
 
+        if (isQ) {
+            node = set.nextNode(node, 'Q') == null ? node : set.nextNode(node, 'Q');
+        }
 
-        if (set.nextNode(set.getRoot(), item.value.charAt(item.value.length() - 1)) == null)
+        if (set.nextNode(node, item.value.charAt(item.value.length() - 1)) == null)
             validPath = false;
         else {
             for (String s : set.keysThatMatch(item.value)) {
-                if (s.length() >= 3)
+                if (s.length() >= 3) {
                     strings.add(s);
+                }
             }
         }
 
         marked[item.x][item.y] = true;
 
         if (validPath) {
-            TrieSET.Node node = set.nextNode(set.getRoot(), item.value.charAt(item.value.length() - 1));
+            node = set.nextNode(node, item.value.charAt(item.value.length() - 1));
             for (int i = item.x - 1; i <= item.x + 1 && i < 4; i++) {
                 for (int j = item.y - 1; j <= item.y + 1 && j < 4; j++) {
                     if (i >= 0 && j >= 0 && !marked[i][j]) {
+                        nextLetter = board.getLetter(i, j) == 'Q' ? "QU" : ""
+                                + board.getLetter(i, j);
                         strings.addAll(findAllUtil(board, node, marked, new Dice(i, j,
-                                item.value + board.getLetter(i, j))));
+                                item.value + nextLetter)));
                     }
                 }
             }
@@ -124,10 +137,22 @@ public class BoggleSolver {
     ArrayList<String> findAllUtil(BoggleBoard board, TrieSET.Node x, boolean[][] marked, Dice item) {
         marked[item.x][item.y] = true;
         boolean validPath = true;
+        boolean isQ = false;
+
+        StdOut.println(item.value);
+
+        TrieSET.Node node = x;
+
+        if (item.value.charAt(item.value.length() - 2) == 'Q')
+            isQ = true;
 
         ArrayList<String> strings = new ArrayList<>();
 
-        if (set.nextNode(x, item.value.charAt(item.value.length() - 1)) == null)
+        if (isQ) {
+            node = set.nextNode(node, 'Q') == null ? node : set.nextNode(node, 'Q');
+        }
+
+        if (set.nextNode(node, item.value.charAt(item.value.length() - 1)) == null)
             validPath = false;
         else {
             for (String s : set.keysThatMatch(item.value)) {
@@ -136,13 +161,16 @@ public class BoggleSolver {
             }
         }
 
+        String nextLetter;
         if (validPath) {
-            TrieSET.Node node = set.nextNode(x, item.value.charAt(item.value.length() - 1));
+            node = set.nextNode(node, item.value.charAt(item.value.length() - 1));
             for (int i = item.x - 1; i <= item.x + 1 && i < 4; i++) {
                 for (int j = item.y - 1; j <= item.y + 1 && j < 4; j++) {
                     if (i >= 0 && j >= 0 && !marked[i][j]) {
+                        nextLetter = board.getLetter(i, j) == 'Q' ? "QU" : ""
+                                + board.getLetter(i, j);
                         strings.addAll(findAllUtil(board, node, marked, new Dice(i, j,
-                                item.value + board.getLetter(i, j))));
+                                item.value + nextLetter)));
                     }
                 }
             }
