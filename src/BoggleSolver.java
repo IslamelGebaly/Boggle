@@ -1,6 +1,5 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
-import edu.princeton.cs.algs4.TrieSET;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +28,8 @@ public class BoggleSolver {
         for (String string : dictionary) {
             set.add(string);
         }
+
+
     }
 
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
@@ -85,6 +86,7 @@ public class BoggleSolver {
         boolean[][] marked = new boolean[4][4];
         boolean validPath = true;
 
+
         for (int i = 0; i < 4; i++)
             Arrays.fill(marked[i], false);
 
@@ -92,7 +94,7 @@ public class BoggleSolver {
         marked[sourceX][sourceY] = true;
 
 
-        if (set.keysWithPrefix(item.value) == null)
+        if (set.nextNode(set.getRoot(), item.value.charAt(item.value.length() - 1)) == null)
             validPath = false;
         else {
             for (String s : set.keysThatMatch(item.value)) {
@@ -100,14 +102,17 @@ public class BoggleSolver {
                     strings.add(s);
             }
         }
+
         marked[item.x][item.y] = true;
 
         if (validPath) {
+            TrieSET.Node node = set.nextNode(set.getRoot(), item.value.charAt(item.value.length() - 1));
             for (int i = item.x - 1; i <= item.x + 1 && i < 4; i++) {
                 for (int j = item.y - 1; j <= item.y + 1 && j < 4; j++) {
-                    if (i >= 0 && j >= 0 && !marked[i][j])
-                        strings.addAll(findAllUtil(board, marked, new Dice(i, j,
+                    if (i >= 0 && j >= 0 && !marked[i][j]) {
+                        strings.addAll(findAllUtil(board, node, marked, new Dice(i, j,
                                 item.value + board.getLetter(i, j))));
+                    }
                 }
             }
         }
@@ -116,13 +121,13 @@ public class BoggleSolver {
         return strings;
     }
 
-    ArrayList<String> findAllUtil(BoggleBoard board, boolean[][] marked, Dice item) {
+    ArrayList<String> findAllUtil(BoggleBoard board, TrieSET.Node x, boolean[][] marked, Dice item) {
         marked[item.x][item.y] = true;
         boolean validPath = true;
 
         ArrayList<String> strings = new ArrayList<>();
 
-        if (set.keysWithPrefix(item.value) == null)
+        if (set.nextNode(x, item.value.charAt(item.value.length() - 1)) == null)
             validPath = false;
         else {
             for (String s : set.keysThatMatch(item.value)) {
@@ -132,11 +137,13 @@ public class BoggleSolver {
         }
 
         if (validPath) {
+            TrieSET.Node node = set.nextNode(x, item.value.charAt(item.value.length() - 1));
             for (int i = item.x - 1; i <= item.x + 1 && i < 4; i++) {
                 for (int j = item.y - 1; j <= item.y + 1 && j < 4; j++) {
-                    if (i >= 0 && j >= 0 && !marked[i][j])
-                        strings.addAll(findAllUtil(board, marked, new Dice(i, j,
+                    if (i >= 0 && j >= 0 && !marked[i][j]) {
+                        strings.addAll(findAllUtil(board, node, marked, new Dice(i, j,
                                 item.value + board.getLetter(i, j))));
+                    }
                 }
             }
         }
