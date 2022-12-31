@@ -87,7 +87,7 @@ public class BoggleSolver {
         String nextLetter = isQ ? "QU" : ""
                 + board.getLetter(sourceX, sourceY);
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < board.rows(); i++)
             Arrays.fill(marked[i], false);
 
         Dice item = new Dice(sourceX, sourceY, nextLetter);
