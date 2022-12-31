@@ -76,7 +76,7 @@ public class BoggleSolver {
 
     private ArrayList<String> findAll(BoggleBoard board, int sourceX, int sourceY) {
         ArrayList<String> strings = new ArrayList<>();
-        boolean[][] marked = new boolean[4][4];
+        boolean[][] marked = new boolean[board.rows()][board.cols()];
         boolean validPath = true;
         boolean isQ = false;
         TrieSET.Node node = set.getRoot();
